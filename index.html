@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輸入日期與數據</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-container label, 
+        .form-container input {
+            margin-bottom: 10px;
+        }
+        .form-container button {
+            margin-left: 10px;
+        }
+        .statistics {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>用電資料紀錄</h2>
+
+    <div class="form-container">
+        <label for="date">日期：</label>
+        <input type="date" id="date" required>
+
+        <label for="offPeak">離峰：</label>
+        <input type="number" id="offPeak" step="0.01" required oninput="calculateTotal()">
+
+        <label for="peak">尖峰：</label>
+        <input type="number" id="peak" step="0.01" required oninput="calculateTotal()">
+
+        <label for="total">總計：</label>
+        <input type="number" id="total" step="0.01" readonly>
+
+        <label for="holiday">休假：</label>
+        <input type="checkbox" id="holiday">
+
+        <label for="livingRoom">客聽：</label>
+        <input type="checkbox" id="livingRoom">
+
+        <label for="masterRoom">主臥：</label>
+        <input type="checkbox" id="masterRoom">
+
+        <label for="secondRoom">次臥：</label>
+        <input type="checkbox" id="secondRoom">
+
+        <label for="laundry">洗衣：</label>
+        <input type="checkbox" id="laundry">
+
+        <label for="cooking">開伙：</label>
+        <input type="checkbox" id="cooking">
+
+        <button type="button" onclick="addData()">新增資料</button>
+    </div>
+
+    <h2>輸入結果</h2>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>離峰</th>
+                <th>尖峰</th>
+                <th>總計</th>
+                <th>休假</th>
+                <th>客聽</th>
+                <th>主臥</th>
+                <th>次臥</th>
+                <th>洗衣</th>
+                <th>開伙</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="statistics">
+        <h3>統計結果</h3>
+        <p>總離峰：<span id="totalOffPeak">0.00</span></p>
+        <p>總尖峰：<span id="totalPeak">0.00</span></p>
+        <p>總計：<span id="overallTotal">0.00</span></p>
+    </div>
+
+    <script>
+        let totalOffPeak = 0;
+        let totalPeak = 0;
+        let overallTotal = 0;
+
+        function calculateTotal() {
+            var offPeak = parseFloat(document.getElementById("offPeak").value) || 0;
+            var peak = parseFloat(document.getElementById("peak").value) || 0;
+            document.getElementById("total").value = (offPeak + peak).toFixed(2);
+        }
+
+        function addData() {
+            // 先確保用戶有填寫必要的數據
+            if (!document.getElementById("date").value || 
+                !document.getElementById("day").value || 
+                document.getElementById("offPeak").value === "" || 
+                document.getElementById("peak").value === "") {
+                alert("請填寫所有必填字段");
+                return;
+            }
+
+            var date = document.getElementById("date").value;
+            var day = document.getElementById("day").value;
+            var offPeak = parseFloat(document.getElementById("offPeak").value) || 0;
+            var peak = parseFloat(document.getElementById("peak").value) || 0;
+            var total = offPeak + peak;
+            var holiday = document.getElementById("holiday").checked ? "✔" : "";
+            var livingRoom = document.getElementById("livingRoom").checked ? "✔" : "";
+            var masterRoom = document.getElementById("masterRoom").checked ? "✔" : "";
+            var secondRoom = document.getElementById("secondRoom").checked ? "✔" : "";
+            var laundry = document.getElementById("laundry").checked ? "✔" : "";
+            var cooking = document.getElementById("cooking").checked ? "✔" : "";
+
+            var table = document.getElementById("dataTable").getElementsByTagName("tbody")[0];
+            var newRow = table.insertRow();
+
+            var dateCell = newRow.insertCell(0);
+            var dayCell = newRow.insertCell(1);
+            var offPeakCell = newRow.insertCell(2);
+            var peakCell = newRow.insertCell(3);
+            var totalCell = newRow.insertCell(4);
+            var holidayCell = newRow.insertCell(5);
+            var livingRoomCell = newRow.insertCell(6);
+            var masterRoomCell = newRow.insertCell(7);
+            var secondRoomCell = newRow.insertCell(8);
+            var laundryCell = newRow.insertCell(9);
+            var cookingCell = newRow.insertCell(10);
+
+            dateCell.innerHTML = date;
+            dayCell.innerHTML = day;
+            offPeakCell.innerHTML = offPeak.toFixed(2);
+            peakCell.innerHTML = peak.toFixed(2);
+            totalCell.innerHTML = total.toFixed(2);
+            holidayCell.innerHTML = holiday;
+            livingRoomCell.innerHTML = livingRoom;
+            masterRoomCell.innerHTML = masterRoom;
+            secondRoomCell.innerHTML = secondRoom;
+            laundryCell.innerHTML = laundry;
+            cookingCell.innerHTML = cooking;
+
+            // 更新統計數據
+            totalOffPeak += offPeak;
+            totalPeak += peak;
+            overallTotal += total;
+
+            // 顯示更新後的統計數據
+            document.getElementById("totalOffPeak").innerText = totalOffPeak.toFixed(2);
+            document.getElementById("totalPeak").innerText = totalPeak.toFixed(2);
+            document.getElementById("overallTotal").innerText = overallTotal.toFixed(2);
+
+            // 清除表單
+            document.getElementById("dataForm").reset();
+            document.getElementById("total").value = "0.00";  // 重置總計欄位
+        }
+    </script>
+</body>
+</html>
