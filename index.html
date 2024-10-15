@@ -54,7 +54,7 @@
         <label for="holiday">休假：</label>
         <input type="checkbox" id="holiday">
 
-        <label for="livingRoom">客聽：</label>
+        <label for="livingRoom">客廳：</label>
         <input type="checkbox" id="livingRoom">
 
         <label for="masterRoom">主臥：</label>
@@ -81,11 +81,12 @@
                 <th>尖峰</th>
                 <th>總計</th>
                 <th>休假</th>
-                <th>客聽</th>
+                <th>客廳</th>
                 <th>主臥</th>
                 <th>次臥</th>
                 <th>洗衣</th>
                 <th>開伙</th>
+                <th>操作</th> <!-- 增加一個新的欄位 -->
             </tr>
         </thead>
         <tbody>
@@ -113,7 +114,6 @@
         function addData() {
             // 先確保用戶有填寫必要的數據
             if (!document.getElementById("date").value || 
-                !document.getElementById("day").value || 
                 document.getElementById("offPeak").value === "" || 
                 document.getElementById("peak").value === "") {
                 alert("請填寫所有必填字段");
@@ -121,7 +121,6 @@
             }
 
             var date = document.getElementById("date").value;
-            var day = document.getElementById("day").value;
             var offPeak = parseFloat(document.getElementById("offPeak").value) || 0;
             var peak = parseFloat(document.getElementById("peak").value) || 0;
             var total = offPeak + peak;
@@ -136,19 +135,18 @@
             var newRow = table.insertRow();
 
             var dateCell = newRow.insertCell(0);
-            var dayCell = newRow.insertCell(1);
-            var offPeakCell = newRow.insertCell(2);
-            var peakCell = newRow.insertCell(3);
-            var totalCell = newRow.insertCell(4);
-            var holidayCell = newRow.insertCell(5);
-            var livingRoomCell = newRow.insertCell(6);
-            var masterRoomCell = newRow.insertCell(7);
-            var secondRoomCell = newRow.insertCell(8);
-            var laundryCell = newRow.insertCell(9);
-            var cookingCell = newRow.insertCell(10);
+            var offPeakCell = newRow.insertCell(1);
+            var peakCell = newRow.insertCell(2);
+            var totalCell = newRow.insertCell(3);
+            var holidayCell = newRow.insertCell(4);
+            var livingRoomCell = newRow.insertCell(5);
+            var masterRoomCell = newRow.insertCell(6);
+            var secondRoomCell = newRow.insertCell(7);
+            var laundryCell = newRow.insertCell(8);
+            var cookingCell = newRow.insertCell(9);
+            var deleteCell = newRow.insertCell(10);  // 新增刪除按鈕欄位
 
             dateCell.innerHTML = date;
-            dayCell.innerHTML = day;
             offPeakCell.innerHTML = offPeak.toFixed(2);
             peakCell.innerHTML = peak.toFixed(2);
             totalCell.innerHTML = total.toFixed(2);
@@ -158,6 +156,38 @@
             secondRoomCell.innerHTML = secondRoom;
             laundryCell.innerHTML = laundry;
             cookingCell.innerHTML = cooking;
+
+            // 添加刪除按鈕
+            var deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "刪除";
+            deleteButton.style.backgroundColor = "#ff4d4d";
+            deleteButton.style.color = "white";
+            deleteButton.style.border = "none";
+            deleteButton.style.padding = "5px 10px";
+            deleteButton.style.cursor = "pointer";
+            deleteButton.onclick = function() {
+                // 取得當前行
+                var row = this.parentNode.parentNode;
+
+                // 取得離峰、尖峰和總計的值
+                var offPeakValue = parseFloat(row.cells[1].innerText) || 0;
+                var peakValue = parseFloat(row.cells[2].innerText) || 0;
+                var totalValue = parseFloat(row.cells[3].innerText) || 0;
+
+                // 更新統計數據
+                totalOffPeak -= offPeakValue;
+                totalPeak -= peakValue;
+                overallTotal -= totalValue;
+
+                // 更新顯示的統計數據
+                document.getElementById("totalOffPeak").innerText = totalOffPeak.toFixed(2);
+                document.getElementById("totalPeak").innerText = totalPeak.toFixed(2);
+                document.getElementById("overallTotal").innerText = overallTotal.toFixed(2);
+
+                // 刪除該行
+                row.parentNode.removeChild(row);
+            };
+            deleteCell.appendChild(deleteButton);
 
             // 更新統計數據
             totalOffPeak += offPeak;
@@ -170,8 +200,16 @@
             document.getElementById("overallTotal").innerText = overallTotal.toFixed(2);
 
             // 清除表單
-            document.getElementById("dataForm").reset();
+            document.getElementById("date").value = "";
+            document.getElementById("offPeak").value = "";
+            document.getElementById("peak").value = "";
             document.getElementById("total").value = "0.00";  // 重置總計欄位
+            document.getElementById("holiday").checked = false;
+            document.getElementById("livingRoom").checked = false;
+            document.getElementById("masterRoom").checked = false;
+            document.getElementById("secondRoom").checked = false;
+            document.getElementById("laundry").checked = false;
+            document.getElementById("cooking").checked = false;
         }
     </script>
 </body>
